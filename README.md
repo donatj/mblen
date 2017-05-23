@@ -5,7 +5,7 @@ Simple tool for decomposing / inspecting UTF-8 strings.
 Examples:
 
 ```bash
- $ mblen 🌋
+$ mblen 🌋
        rune: 🌋
         ord: 127755
 byte length: 4
@@ -21,4 +21,24 @@ byte length: 4
         ord: 127479
 byte length: 4
        name: REGIONAL INDICATOR SYMBOL LETTER R
+```
+
+Also if no arguments are given it will read from STDIN.
+
+```bash
+$ echo 日本語 | mblen
+       rune: 日
+        ord: 26085
+byte length: 3
+       name: SUN; DAY; DAYTIME
+
+       rune: 本
+        ord: 26412
+byte length: 3
+       name: ROOT, ORIGIN, SOURCE; BASIS
+
+       rune: 語
+        ord: 35486
+byte length: 3
+       name: LANGUAGE, WORDS; SAYING, EXPRESSION
 ```
