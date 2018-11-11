@@ -2,7 +2,19 @@
 
 Simple tool for decomposing / inspecting UTF-8 strings.
 
-Examples:
+## Installation
+
+Binaries are availible for Darwin (macOS), Linux and Windows on the release page:
+
+https://github.com/donatj/mblen/releases
+
+### From Source
+
+```bash
+go get -u -v github.com/donatj/mblen
+```
+
+## Examples
 
 ```bash
 $ mblen 🌋
