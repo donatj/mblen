@@ -1,6 +1,6 @@
 # mblen
 
-Simple tool for decomposing / inspecting UTF-8 strings.
+Simple CLI for decomposing / inspecting UTF-8 strings.
 
 ## Installation
 
