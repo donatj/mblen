@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/cooperhewitt/go-ucd"
+	"golang.org/x/text/unicode/runenames"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func handleStr(str string) {
 		fmt.Println("       rune:", string(rune))
 		fmt.Println("        ord:", rune)
 		fmt.Println("byte length:", utf8.RuneLen(rune))
-		fmt.Println("       name:", ucd.Name(string(rune)))
+		fmt.Println("       name:", runenames.Name(rune))
 
 		fmt.Println()
 	}
