@@ -1,29 +1,63 @@
 BIN=mblen
+USER=$(shell whoami)
+HEAD=$(shell ([ -n "$${CI_TAG}" ] && echo "$$CI_TAG" || exit 1) || git describe --tags 2> /dev/null || git rev-parse --short HEAD)
+STAMP=$(shell date -u '+%Y-%m-%d_%I:%M:%S%p')
+DIRTY=$(shell test $(shell git status --porcelain | wc -l) -eq 0 || echo '(dirty)')
 
-HEAD=$(shell git describe --tags 2> /dev/null  || git rev-parse --short HEAD)
 
-all: build
+LDFLAGS="-X main.buildStamp=$(STAMP) -X main.buildUser=$(USER) -X main.buildHash=$(HEAD) -X main.buildDirty=$(DIRTY)"
+all: install
 
-build: darwin64 linux64 windows64
+.PHONY: build
+build: release/darwin_universal release/linux_amd64 release/freebsd_amd64 release/windows_386 release/windows_amd64
 
+.PHONY: test
+test:
+	go test './...'
+
+.PHONY: clean
 clean:
 	-rm -f $(BIN)
-	-rm -rf release
+	-rm -rf release dist
+	go clean -i .
 
-darwin64:
-	env GOOS=darwin GOARCH=amd64 go clean -i
-	env GOOS=darwin GOARCH=amd64 go build -o release/darwin64/$(BIN) .
+.PHONY: install
+install:
+	go install -ldflags $(LDFLAGS) .
 
-linux64:
-	env GOOS=linux GOARCH=amd64 go clean -i
-	env GOOS=linux GOARCH=amd64 go build -o release/linux64/$(BIN) .
+release/darwin_amd64:
+	env GOOS=darwin GOARCH=amd64 go clean -i .
+	env GOOS=darwin GOARCH=amd64 go build -ldflags $(LDFLAGS) -o release/darwin_amd64/$(BIN) .
 
-windows64:
-	env GOOS=windows GOARCH=amd64 go clean -i
-	env GOOS=windows GOARCH=amd64 go build -o release/windows64/$(BIN).exe .
+release/darwin_arm64:
+	env GOOS=darwin GOARCH=arm64 go clean -i .
+	env GOOS=darwin GOARCH=arm64 go build -ldflags $(LDFLAGS) -o release/darwin_arm64/$(BIN) .
+
+release/darwin_universal: release/darwin_amd64 release/darwin_arm64
+	mkdir release/darwin_universal
+	lipo -create -output release/darwin_universal/$(BIN) release/darwin_amd64/$(BIN) release/darwin_arm64/$(BIN)
+
+release/linux_amd64:
+	env GOOS=linux GOARCH=amd64 go clean -i .
+	env GOOS=linux GOARCH=amd64 go build -ldflags $(LDFLAGS) -o release/linux_amd64/$(BIN) .
+
+release/freebsd_amd64:
+	env GOOS=freebsd GOARCH=amd64 go clean -i .
+	env GOOS=freebsd GOARCH=amd64 go build -ldflags $(LDFLAGS) -o release/freebsd_amd64/$(BIN) .
+
+release/windows_386:
+	env GOOS=windows GOARCH=386 go clean -i .
+	env GOOS=windows GOARCH=386 go build -ldflags $(LDFLAGS) -o release/windows_386/$(BIN).exe .
+
+release/windows_amd64:
+	env GOOS=windows GOARCH=amd64 go clean -i .
+	env GOOS=windows GOARCH=amd64 go build -ldflags $(LDFLAGS) -o release/windows_amd64/$(BIN).exe .
 
 .PHONY: release
 release: clean build
-	zip -9 release/$(BIN).darwin_amd64.$(HEAD).zip release/darwin64/$(BIN)
-	zip -9 release/$(BIN).linux_amd64.$(HEAD).zip release/linux64/$(BIN)
-	zip -9 release/$(BIN).windows_amd64.$(HEAD).zip release/windows64/$(BIN).exe
+	mkdir dist
+	zip -j 'dist/$(BIN).darwin_universal.$(HEAD)$(DIRTY).zip'  release/darwin_universal/$(BIN)
+	zip -j 'dist/$(BIN).linux_amd64.$(HEAD)$(DIRTY).zip'       release/linux_amd64/$(BIN)
+	zip -j 'dist/$(BIN).freebsd_amd64.$(HEAD)$(DIRTY).zip'     release/freebsd_amd64/$(BIN)
+	zip -j 'dist/$(BIN).windows_386.$(HEAD)$(DIRTY).exe.zip'   release/windows_386/$(BIN).exe
+	zip -j 'dist/$(BIN).windows_amd64.$(HEAD)$(DIRTY).exe.zip' release/windows_amd64/$(BIN).exe
