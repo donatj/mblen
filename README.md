@@ -11,7 +11,7 @@ https://github.com/donatj/mblen/releases
 ### From Source
 
 ```bash
-go get -u -v github.com/donatj/mblen
+go install github.com/donatj/mblen@latest
 ```
 
 ## Examples
