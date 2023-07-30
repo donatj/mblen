@@ -23,12 +23,14 @@ func main() {
 }
 
 func handleStr(str string) {
-	for _, rune := range str {
+	for i, rune := range str {
 		fmt.Println("       rune:", string(rune))
 		fmt.Println("        ord:", rune)
 		fmt.Println("byte length:", utf8.RuneLen(rune))
 		fmt.Println("       name:", runenames.Name(rune))
 
-		fmt.Println()
+		if i < len(str)-1 {
+			fmt.Println()
+		}
 	}
 }
