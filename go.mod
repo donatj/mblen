@@ -1,5 +1,5 @@
 module github.com/donatj/mblen
 
-go 1.21
+go 1.23.0
 
-require golang.org/x/text v0.20.0
+require golang.org/x/text v0.27.0
